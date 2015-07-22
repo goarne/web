@@ -10,7 +10,6 @@ import (
 
 func TestAddSingleRoute(t *testing.T) {
 	router := NewWebRouter()
-
 	router.AddRoute(NewRoute().Path("/"))
 
 	if router.routeCount() != 1 {
@@ -22,8 +21,8 @@ func TestThreeRoutes(t *testing.T) {
 	router := NewWebRouter()
 
 	router.AddRoute(NewRoute().Path("/route"))
-	router.AddRoute(NewRoute().Path("/route/articles/").Method("OPTION"))
-	router.AddRoute(NewRoute().Path("/route/articles/1").Method("GET"))
+	router.AddRoute(NewRoute().Path("/route/articles/").Method(HttpOption))
+	router.AddRoute(NewRoute().Path("/route/articles/1").Method(HttpGet))
 
 	if router.routeCount() != 3 {
 		t.Errorf("Could not add three routes.")
@@ -44,9 +43,9 @@ func TestFinder(t *testing.T) {
 func TestFindRouteWithMethod(t *testing.T) {
 	router := NewWebRouter()
 
-	router.AddRoute(NewRoute().Path("/route").Method("GET"))
-	router.AddRoute(NewRoute().Path("/route/articles/").Method("GET"))
-	router.AddRoute(NewRoute().Path("/route/articles/1").Method("GET"))
+	router.AddRoute(NewRoute().Path("/route").Method(HttpGet))
+	router.AddRoute(NewRoute().Path("/route/articles/").Method(HttpGet))
+	router.AddRoute(NewRoute().Path("/route/articles/1").Method(HttpGet))
 
 	found := router.findRoute(createGetRequest("/route/articles/"))
 
@@ -58,8 +57,8 @@ func TestFindRouteWithMethod(t *testing.T) {
 func TestFindRouteWithId(t *testing.T) {
 	router := NewWebRouter()
 
-	router.AddRoute(NewRoute().Path("/route/too/{id}").Method("GET"))
-	router.AddRoute(NewRoute().Path("/route/articles/{name}").Method("GET"))
+	router.AddRoute(NewRoute().Path("/route/too/{id}").Method(HttpGet))
+	router.AddRoute(NewRoute().Path("/route/articles/{name}").Method(HttpGet))
 
 	found := router.findRoute(createGetRequest("/route/articles/joe"))
 
@@ -72,8 +71,8 @@ func TestFindRouteWithIdVariable(t *testing.T) {
 	router := NewWebRouter()
 
 	urlWithIdVariable := "/route/articles/{id:\\d*}/detaljer/"
-	router.AddRoute(NewRoute().Path("/route/articles/{name}").Method("GET"))
-	router.AddRoute(NewRoute().Path(urlWithIdVariable).Method("GET"))
+	router.AddRoute(NewRoute().Path("/route/articles/{name}").Method(HttpGet))
+	router.AddRoute(NewRoute().Path(urlWithIdVariable).Method(HttpGet))
 	found := router.findRoute(createGetRequest("/route/articles/21/detaljer/"))
 
 	if found == nil || found.urlVariables["id"] != "21" {
@@ -84,7 +83,7 @@ func TestFindRouteWithIdVariable(t *testing.T) {
 func TestFindRouteWithPost(t *testing.T) {
 	router := NewWebRouter()
 
-	router.AddRoute(NewRoute().Path("/route/articles/").Method("POST"))
+	router.AddRoute(NewRoute().Path("/route/articles/").Method(HttpPost))
 
 	found := router.findRoute(createPostRequest("/route/articles/"))
 
@@ -96,8 +95,8 @@ func TestFindRouteWithPost(t *testing.T) {
 func TestCannotFindPostRoute(t *testing.T) {
 	router := NewWebRouter()
 
-	router.AddRoute(NewRoute().Path("/route/articles/").Method("GET, OPTIONS"))
-	router.AddRoute(NewRoute().Path("/route/articles/test").Method("GET"))
+	router.AddRoute(NewRoute().Path("/route/articles/").Method(HttpGet))
+	router.AddRoute(NewRoute().Path("/route/articles/test").Method(HttpGet))
 
 	found := router.findRoute(createPostRequest("/route/article"))
 
@@ -109,11 +108,11 @@ func TestCannotFindPostRoute(t *testing.T) {
 func TestFindRouteWithContentTypeJSON(t *testing.T) {
 	router := NewWebRouter()
 
-	router.AddRoute(NewRoute().Path("/route/articles/").Method("GET").Header("Accept", "application/json"))
-	router.AddRoute(NewRoute().Path("/route/articles/edit/").Method("GET").Header("Accept", "application/html"))
+	router.AddRoute(NewRoute().Path("/route/articles/").Method(HttpGet).Header(HttpAccept, "application/json"))
+	router.AddRoute(NewRoute().Path("/route/articles/edit/").Method(HttpGet).Header(HttpAccept, "application/html"))
 
 	req := createGetRequest("/route/articles/")
-	req.Header.Add("Accept", "application/json")
+	req.Header.Add(HttpAccept.String(), "application/json")
 
 	found := router.findRoute(req)
 
@@ -125,11 +124,11 @@ func TestFindRouteWithContentTypeJSON(t *testing.T) {
 func TestCannotFindRouteWithCorrectContentTypeHTML(t *testing.T) {
 	router := NewWebRouter()
 
-	router.AddRoute(NewRoute().Path("/route/articles/").Method("GET").Header("Accept", "application/json"))
-	router.AddRoute(NewRoute().Path("/route/articles/list").Method("GET").Header("Accept", "application/json"))
+	router.AddRoute(NewRoute().Path("/route/articles/").Method(HttpGet).Header(HttpAccept, "application/json"))
+	router.AddRoute(NewRoute().Path("/route/articles/list").Method(HttpGet).Header(HttpAccept, "application/json"))
 
 	req := createGetRequest("/route/articles/")
-	req.Header.Add("Accept", "application/html")
+	req.Header.Add(HttpAccept.String(), "application/html")
 
 	found := router.findRoute(createGetRequest("/route/article"))
 
@@ -140,7 +139,7 @@ func TestCannotFindRouteWithCorrectContentTypeHTML(t *testing.T) {
 
 func TestFindRouteWithPathPrefix(t *testing.T) {
 	router := NewWebRouter()
-	router.AddRoute(NewRoute().Path("/route/article/").PathPrefix("/css/").PathPrefix("/images/").Method("GET"))
+	router.AddRoute(NewRoute().Path("/route/article/").PathPrefix("/css/").PathPrefix("/images/").Method(HttpGet))
 
 	found := router.findRoute(createGetRequest("/route/article/css/mystylesheet.css"))
 
@@ -149,7 +148,7 @@ func TestFindRouteWithPathPrefix(t *testing.T) {
 	}
 }
 
-func TestHandlerServieHTTPWithId(t *testing.T) {
+func TestHTTPHandlerServiceWithId(t *testing.T) {
 	id := "21"
 
 	//The func validates the unit test.
@@ -177,13 +176,13 @@ func TestHandlerServieHTTPWithId(t *testing.T) {
 
 //Helper methods
 func createGetRequest(path string) *http.Request {
-	req, _ := http.NewRequest("GET", path, nil)
+	req, _ := http.NewRequest(HttpGet.String(), path, nil)
 	return req
 }
 
 func createPostRequest(path string) *http.Request {
 	req := &http.Request{}
 	req.URL, _ = url.Parse(path)
-	req.Method = "POST"
+	req.Method = HttpPost.String()
 	return req
 }

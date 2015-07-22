@@ -2,7 +2,9 @@
 package web
 
 import (
+	"errors"
 	"net/http"
+	"reflect"
 	"regexp"
 	"strings"
 )
@@ -161,14 +163,22 @@ func (r *Route) PathPrefix(path string) *Route {
 //Builder method for adding supported methods.
 //This adds match attributes for the route.
 //It support all http verbs created.
-//
-//Samplemethod: "POST"
-func (r *Route) Method(m string) *Route {
 
-	_, exists := r.methods[strings.ToUpper(m)]
+//The argument m interface{} is a custom string type.
+//Either the HttpGet type can be used as parameter or an ordinary string
+//
+//Sample:
+// Route.Method(HttpGet)
+// or
+// Route.Method("GET")
+func (r *Route) Method(m interface{}) *Route {
+
+	httpMethod := parseReflectedValue(m)
+
+	_, exists := r.methods[strings.ToUpper(httpMethod)]
 
 	if !exists {
-		r.methods[strings.ToUpper(m)] = true
+		r.methods[strings.ToUpper(httpMethod)] = true
 	}
 
 	return r
@@ -176,15 +186,24 @@ func (r *Route) Method(m string) *Route {
 
 //Builder method for adding required headers.
 //This adds match attributes for the route.
-//
 //Samleheader:  key "Accept", value "application/json")
 //The header will match the request with  a similar http header,
 //if its not present the request will not match.
-func (r *Route) Header(k, v string) *Route {
-	_, exists := r.headers[k]
+//
+//The argument k inHttpGetterface{} is a custom string type.
+//Either the HttpAccept type can be used as parameter or an ordinary string "Accept
+//
+//Sample:
+// Route.Header(HttpAccept)
+// or
+// Route.Header("Accept")
+func (r *Route) Header(k interface{}, v string) *Route {
+	reflectedValue := parseReflectedValue(k)
+
+	_, exists := r.headers[reflectedValue]
 
 	if !exists {
-		r.headers[k] = regexp.MustCompile(v)
+		r.headers[reflectedValue] = regexp.MustCompile(v)
 	}
 
 	return r
@@ -306,4 +325,16 @@ func (r *Route) buildPathPattern() {
 	pattern := REGEX_START_OF_STRING + path + REGEX_END_OF_STRING
 
 	r.urlMatcher = regexp.MustCompile(pattern)
+}
+
+//Method parses the custom stringtype to string.
+//
+// Ex. httpMethodAsSTRing := parseReflectedValue(HttpGet)
+func parseReflectedValue(a interface{}) string {
+
+	if a != nil && reflect.TypeOf(a).Kind() != reflect.String {
+		errors.New("Argument is not a string.")
+	}
+
+	return reflect.ValueOf(a).String()
 }

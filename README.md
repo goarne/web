@@ -1,2 +1,2 @@
 # web
-Webframework for creating HTTP controllers. 
+Webframework middleware for integrating structures with Golangs HTTP server.
