@@ -40,6 +40,24 @@ func TestFinder(t *testing.T) {
 	}
 }
 
+func TestFindRouteWithOptionalSlashPostfix(t *testing.T) {
+
+	router := NewWebRouter()
+	router.AddRoute(NewRoute().Path("/test(/)?"))
+	found := router.findRoute(createGetRequest("/test"))
+
+	//Testing path without slash postfix
+	if found == nil {
+		t.Errorf("Could not find route.")
+	}
+	//Testing path with slash postfix
+	found = router.findRoute(createGetRequest("/test/"))
+
+	if found == nil {
+		t.Errorf("Could not find route.")
+	}
+}
+
 func TestFindRouteWithMethod(t *testing.T) {
 	router := NewWebRouter()
 

@@ -329,7 +329,7 @@ func (r *Route) buildPathPattern() {
 
 //Method parses the custom stringtype to string.
 //
-// Ex. httpMethodAsSTRing := parseReflectedValue(HttpGet)
+// Ex. httpMethodAsSTRing := parseReflectedValue(web.HttpGet)
 func parseReflectedValue(a interface{}) string {
 
 	if a != nil && reflect.TypeOf(a).Kind() != reflect.String {
