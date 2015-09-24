@@ -22,7 +22,7 @@ const (
 	HttpGet     HttpMethod = "GET"
 	HttpPut     HttpMethod = "PUT"
 	HttpDelete  HttpMethod = "DELETE"
-	HttpOption  HttpMethod = "OPTION"
+	HttpOptions HttpMethod = "OPTIONS"
 	HttpTrace   HttpMethod = "TRACE"
 	HttpConnect HttpMethod = "CONNECT"
 )
