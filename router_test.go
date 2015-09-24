@@ -21,7 +21,7 @@ func TestThreeRoutes(t *testing.T) {
 	router := NewWebRouter()
 
 	router.AddRoute(NewRoute().Path("/route"))
-	router.AddRoute(NewRoute().Path("/route/articles/").Method(HttpOption))
+	router.AddRoute(NewRoute().Path("/route/articles/").Method(HttpOptions))
 	router.AddRoute(NewRoute().Path("/route/articles/1").Method(HttpGet))
 
 	if router.routeCount() != 3 {
