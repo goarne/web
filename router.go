@@ -124,6 +124,26 @@ func NewRoute() *Route {
 	return r
 }
 
+//Method adds a HTTP GET with path and function to Route.
+func Get(path string, f func(http.ResponseWriter, *http.Request)) *Route {
+	return NewRoute().Path(path).Method(HttpGet).HandlerFunc(f)
+}
+
+//Method adds a HTTP POST with path and function to Route.
+func Post(path string, f func(http.ResponseWriter, *http.Request)) *Route {
+	return NewRoute().Path(path).Method(HttpPost).HandlerFunc(f)
+}
+
+//Method adds a HTTP PUT with path and function to Route.
+func Put(path string, f func(http.ResponseWriter, *http.Request)) *Route {
+	return NewRoute().Path(path).Method(HttpPut).HandlerFunc(f)
+}
+
+//Method adds a HTTP DELETE with path and function to Route.
+func Delete(path string, f func(http.ResponseWriter, *http.Request)) *Route {
+	return NewRoute().Path(path).Method(HttpDelete).HandlerFunc(f)
+}
+
 //Method adds a path to the route which is used by the router to match
 //the incomming http request. The match is done with regular expressions.
 //

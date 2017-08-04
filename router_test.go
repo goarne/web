@@ -72,6 +72,20 @@ func TestFindRouteWithMethod(t *testing.T) {
 	}
 }
 
+func TestGetMethod(t *testing.T) {
+	router := NewWebRouter()
+
+	router.AddRoute(Get("/route", func(w http.ResponseWriter, r *http.Request) {}))
+	router.AddRoute(Get("/route/articles/", func(w http.ResponseWriter, r *http.Request) {}))
+	router.AddRoute(Get("/route/articles/1", func(w http.ResponseWriter, r *http.Request) {}))
+
+	found := router.findRoute(createGetRequest("/route/articles/"))
+
+	if found == nil {
+		t.Errorf("Could not find route with method.")
+	}
+}
+
 func TestFindRouteWithId(t *testing.T) {
 	router := NewWebRouter()
 
